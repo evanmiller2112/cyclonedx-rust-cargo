@@ -35,6 +35,4 @@ pub(crate) use crate::specs::common::external_reference::v1_6 as external_refere
 pub(crate) use crate::specs::common::license::v1_6 as license;
 pub(crate) use crate::specs::common::metadata::v1_6 as metadata;
 pub(crate) use crate::specs::common::service::v1_6 as service;
-pub(crate) use crate::specs::common::tool::v1_6 as tool;
 pub(crate) use crate::specs::common::vulnerability::v1_6 as vulnerability;
-pub(crate) use crate::specs::common::vulnerability_analysis::v1_6 as vulnerability_analysis;

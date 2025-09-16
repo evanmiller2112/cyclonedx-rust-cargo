@@ -1,4 +1,4 @@
-mod workflow;
+pub(crate) mod workflow;
 
 use serde::{Deserialize, Serialize};
 use xml::writer;

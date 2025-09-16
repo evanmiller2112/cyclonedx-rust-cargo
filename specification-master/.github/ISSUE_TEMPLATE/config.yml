@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Discussions
+    url: https://github.com/CycloneDX/specification/discussions
+    about: Please ask and answer questions here.
+  - name: Community Slack support channel
+    url: https://cyclonedx.slack.com/archives/CVA0G10FN
+    about: Community Slack channel.
+  - name: Community Slack invite
+    url: https://cyclonedx.org/slack/invite
+    about: Community Slack invite.
