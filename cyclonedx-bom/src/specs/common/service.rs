@@ -18,7 +18,7 @@
 
 use cyclonedx_bom_macros::versioned;
 
-#[versioned("1.3", "1.4", "1.5")]
+#[versioned("1.3", "1.4", "1.5", "1.6")]
 pub(crate) mod base {
     #[versioned("1.3", "1.4")]
     use crate::{
@@ -40,14 +40,14 @@ pub(crate) mod base {
     use serde::{Deserialize, Serialize};
     use xml::{reader, writer::XmlEvent};
 
-    #[versioned("1.4", "1.5")]
+    #[versioned("1.4", "1.5", "1.6")]
     use crate::specs::common::signature::Signature;
     use crate::specs::common::{organization::OrganizationalEntity, property::Properties};
     #[versioned("1.3")]
     use crate::specs::v1_3::{external_reference::ExternalReferences, license::Licenses};
     #[versioned("1.4")]
     use crate::specs::v1_4::{external_reference::ExternalReferences, license::Licenses};
-    #[versioned("1.5")]
+    #[versioned("1.5", "1.6")]
     use crate::specs::v1_5::{
         external_reference::ExternalReferences, license::Licenses, service_data::ServiceData,
     };
@@ -65,7 +65,7 @@ pub(crate) mod base {
         }
     }
 
-    #[versioned("1.5")]
+    #[versioned("1.5", "1.6")]
     impl From<models::service::Services> for Services {
         fn from(other: models::service::Services) -> Self {
             Services(convert_vec(other.0))
@@ -140,10 +140,10 @@ pub(crate) mod base {
         pub(crate) properties: Option<Properties>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub(crate) services: Option<Services>,
-        #[versioned("1.4", "1.5")]
+        #[versioned("1.4", "1.5", "1.6")]
         #[serde(skip_serializing_if = "Option::is_none")]
         pub(crate) signature: Option<Signature>,
-        #[versioned("1.5")]
+        #[versioned("1.5", "1.6")]
         #[serde(skip_serializing_if = "Option::is_none")]
         pub(crate) trust_zone: Option<String>,
     }
@@ -170,15 +170,15 @@ pub(crate) mod base {
                 external_references: try_convert_optional(other.external_references)?,
                 properties: convert_optional(other.properties),
                 services: try_convert_optional(other.services)?,
-                #[versioned("1.4", "1.5")]
+                #[versioned("1.4", "1.5", "1.6")]
                 signature: convert_optional(other.signature),
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 trust_zone: other.trust_zone.map(|tz| tz.to_string()),
             })
         }
     }
 
-    #[versioned("1.5")]
+    #[versioned("1.5", "1.6")]
     impl From<models::service::Service> for Service {
         fn from(other: models::service::Service) -> Self {
             Self {
@@ -198,9 +198,9 @@ pub(crate) mod base {
                 external_references: convert_optional(other.external_references),
                 properties: convert_optional(other.properties),
                 services: convert_optional(other.services),
-                #[versioned("1.4", "1.5")]
+                #[versioned("1.4", "1.5", "1.6")]
                 signature: convert_optional(other.signature),
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 trust_zone: other.trust_zone.map(|tz| tz.to_string()),
             }
         }
@@ -227,11 +227,11 @@ pub(crate) mod base {
                 services: convert_optional(other.services),
                 #[versioned("1.3")]
                 signature: None,
-                #[versioned("1.4", "1.5")]
+                #[versioned("1.4", "1.5", "1.6")]
                 signature: convert_optional(other.signature),
                 #[versioned("1.3", "1.4")]
                 trust_zone: None,
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 trust_zone: other.trust_zone.map(NormalizedString::new_unchecked),
             }
         }
@@ -249,9 +249,9 @@ pub(crate) mod base {
     const AUTHENTICATED_TAG: &str = "authenticated";
     const X_TRUST_BOUNDARY_TAG: &str = "x-trust-boundary";
     const DATA_TAG: &str = "data";
-    #[versioned("1.4", "1.5")]
+    #[versioned("1.4", "1.5", "1.6")]
     const SIGNATURE_TAG: &str = "signature";
-    #[versioned("1.5")]
+    #[versioned("1.5", "1.6")]
     const TRUST_ZONE_TAG: &str = "trustZone";
 
     impl ToXml for Service {
@@ -331,12 +331,12 @@ pub(crate) mod base {
                 services.write_xml_element(writer)?;
             }
 
-            #[versioned("1.4", "1.5")]
+            #[versioned("1.4", "1.5", "1.6")]
             if let Some(signature) = &self.signature {
                 signature.write_xml_element(writer)?;
             }
 
-            #[versioned("1.5")]
+            #[versioned("1.5", "1.6")]
             if let Some(trust_zone) = &self.trust_zone {
                 write_simple_tag(writer, TRUST_ZONE_TAG, trust_zone)?;
             }
@@ -377,9 +377,9 @@ pub(crate) mod base {
             let mut external_references: Option<ExternalReferences> = None;
             let mut properties: Option<Properties> = None;
             let mut services: Option<Services> = None;
-            #[versioned("1.4", "1.5")]
+            #[versioned("1.4", "1.5", "1.6")]
             let mut signature: Option<Signature> = None;
-            #[versioned("1.5")]
+            #[versioned("1.5", "1.6")]
             let mut trust_zone: Option<String> = None;
 
             let mut got_end_tag = false;
@@ -481,7 +481,7 @@ pub(crate) mod base {
                             &attributes,
                         )?)
                     }
-                    #[versioned("1.4", "1.5")]
+                    #[versioned("1.4", "1.5", "1.6")]
                     reader::XmlEvent::StartElement {
                         name, attributes, ..
                     } if name.local_name == SIGNATURE_TAG => {
@@ -491,7 +491,7 @@ pub(crate) mod base {
                             &attributes,
                         )?)
                     }
-                    #[versioned("1.5")]
+                    #[versioned("1.5", "1.6")]
                     reader::XmlEvent::StartElement { name, .. }
                         if name.local_name == TRUST_ZONE_TAG =>
                     {
@@ -529,21 +529,21 @@ pub(crate) mod base {
                 external_references,
                 properties,
                 services,
-                #[versioned("1.4", "1.5")]
+                #[versioned("1.4", "1.5", "1.6")]
                 signature,
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 trust_zone,
             })
         }
     }
 
-    #[versioned("1.3", "1.4", "1.5")]
+    #[versioned("1.3", "1.4", "1.5", "1.6")]
     #[derive(Debug, Deserialize, Serialize, PartialEq)]
     #[serde(rename_all = "camelCase", untagged)]
     pub(crate) enum Data {
         /// Legacy entry type until version 1.4
         Classification(Vec<DataClassification>),
-        #[versioned("1.5")]
+        #[versioned("1.5", "1.6")]
         ServiceData(Vec<ServiceData>),
     }
 
@@ -559,7 +559,7 @@ pub(crate) mod base {
                         data.into_iter().map(|d| d.classification.into()).collect();
                     Self::Classification(classifications)
                 }
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 models::service::Data::ServiceData(data) => Self::ServiceData(convert_vec(data)),
             }
         }
@@ -571,13 +571,13 @@ pub(crate) mod base {
                 Data::Classification(classification) => {
                     Self::Classification(convert_vec(classification))
                 }
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 Data::ServiceData(data) => Self::ServiceData(convert_vec(data)),
             }
         }
     }
 
-    #[versioned("1.5")]
+    #[versioned("1.5", "1.6")]
     const DATAFLOW_TAG: &str = "dataflow";
 
     #[versioned("1.3", "1.4")]
@@ -620,7 +620,7 @@ pub(crate) mod base {
         }
     }
 
-    #[versioned("1.5")]
+    #[versioned("1.5", "1.6")]
     impl FromXml for Data {
         fn read_xml_element<R: std::io::Read>(
             event_reader: &mut xml::EventReader<R>,
@@ -687,7 +687,7 @@ pub(crate) mod base {
                     }
                     Ok(())
                 }
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 Self::ServiceData(services) => {
                     for service in services {
                         service.write_xml_element(writer)?;
@@ -779,7 +779,7 @@ pub(crate) mod base {
         use super::*;
         use pretty_assertions::assert_eq;
 
-        #[versioned("1.4", "1.5")]
+        #[versioned("1.4", "1.5", "1.6")]
         use crate::specs::common::signature::test::{corresponding_signature, example_signature};
         #[versioned("1.3")]
         use crate::specs::v1_3::{
@@ -795,7 +795,7 @@ pub(crate) mod base {
             },
             license::test::{corresponding_licenses, example_licenses},
         };
-        #[versioned("1.5")]
+        #[versioned("1.5", "1.6")]
         use crate::specs::v1_5::{
             data_governance::{DataGovernance, DataGovernanceResponsibleParty},
             external_reference::test::{
@@ -835,9 +835,9 @@ pub(crate) mod base {
                 external_references: Some(example_external_references()),
                 properties: Some(example_properties()),
                 services: Some(Services(vec![])),
-                #[versioned("1.4", "1.5")]
+                #[versioned("1.4", "1.5", "1.6")]
                 signature: Some(example_signature()),
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 trust_zone: Some("trust zone".to_string()),
             }
         }
@@ -860,11 +860,11 @@ pub(crate) mod base {
                 services: Some(models::service::Services(vec![])),
                 #[versioned("1.3")]
                 signature: None,
-                #[versioned("1.4", "1.5")]
+                #[versioned("1.4", "1.5", "1.6")]
                 signature: Some(corresponding_signature()),
                 #[versioned("1.3", "1.4")]
                 trust_zone: None,
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 trust_zone: Some("trust zone".into()),
             }
         }
@@ -877,7 +877,7 @@ pub(crate) mod base {
             }])
         }
 
-        #[versioned("1.5")]
+        #[versioned("1.5", "1.6")]
         fn example_data_classification() -> Data {
             Data::ServiceData(vec![ServiceData {
                 name: Some("Consumer to Stock Service".to_string()),
@@ -911,7 +911,7 @@ pub(crate) mod base {
             }])
         }
 
-        #[versioned("1.5")]
+        #[versioned("1.5", "1.6")]
         fn corresponding_data_classification() -> models::service::Data {
             models::service::Data::ServiceData(vec![models::service::ServiceData {
                 name: Some(NormalizedString::new_unchecked(
@@ -1068,7 +1068,7 @@ pub(crate) mod base {
   </service>
 </services>
 "#;
-            #[versioned("1.5")]
+            #[versioned("1.5", "1.6")]
             let input = r#"
 <services>
   <service bom-ref="bom-ref">

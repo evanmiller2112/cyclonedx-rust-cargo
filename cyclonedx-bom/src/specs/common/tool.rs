@@ -18,11 +18,11 @@
 
 use cyclonedx_bom_macros::versioned;
 
-#[versioned("1.3", "1.4", "1.5")]
+#[versioned("1.3", "1.4", "1.5", "1.6")]
 pub(crate) mod base {
     #[versioned("1.4")]
     use crate::specs::v1_4::external_reference::ExternalReferences;
-    #[versioned("1.5")]
+    #[versioned("1.5", "1.6")]
     use crate::specs::v1_5::{
         component::Components, external_reference::ExternalReferences, service::Services,
     };
@@ -47,7 +47,7 @@ pub(crate) mod base {
         /// Legacy version: https://cyclonedx.org/docs/1.4/json/#metadata_tools
         List(Vec<Tool>),
         /// Added in 1.5, see https://cyclonedx.org/docs/1.5/json/#metadata_tools
-        #[versioned("1.5")]
+        #[versioned("1.5", "1.6")]
         Object {
             #[serde(skip_serializing_if = "Option::is_none")]
             services: Option<Services>,
@@ -64,7 +64,7 @@ pub(crate) mod base {
                 models::tool::Tools::List(tools) => Ok(Self::List(convert_vec(tools))),
                 #[versioned("1.3", "1.4")]
                 models::tool::Tools::Object { .. } => Ok(Self::List(vec![])),
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 models::tool::Tools::Object {
                     services,
                     components,
@@ -80,7 +80,7 @@ pub(crate) mod base {
         fn from(other: Tools) -> Self {
             match other {
                 Tools::List(tools) => models::tool::Tools::List(convert_vec(tools)),
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 Tools::Object {
                     services,
                     components,
@@ -93,9 +93,9 @@ pub(crate) mod base {
     }
 
     const TOOLS_TAG: &str = "tools";
-    #[versioned("1.5")]
+    #[versioned("1.5", "1.6")]
     const COMPONENTS_TAG: &str = "components";
-    #[versioned("1.5")]
+    #[versioned("1.5", "1.6")]
     const SERVICES_TAG: &str = "services";
 
     impl ToXml for Tools {
@@ -113,7 +113,7 @@ pub(crate) mod base {
                         tool.write_xml_element(writer)?;
                     }
                 }
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 Tools::Object {
                     services,
                     components,
@@ -141,9 +141,9 @@ pub(crate) mod base {
         {
             let mut tools: Option<Vec<Tool>> = None;
 
-            #[versioned("1.5")]
+            #[versioned("1.5", "1.6")]
             let mut components: Option<Components> = None;
-            #[versioned("1.5")]
+            #[versioned("1.5", "1.6")]
             let mut services: Option<Services> = None;
 
             let mut got_end_tag = false;
@@ -161,7 +161,7 @@ pub(crate) mod base {
                         )?);
                     }
 
-                    #[versioned("1.5")]
+                    #[versioned("1.5", "1.6")]
                     reader::XmlEvent::StartElement {
                         name, attributes, ..
                     } if name.local_name == COMPONENTS_TAG => {
@@ -172,7 +172,7 @@ pub(crate) mod base {
                         )?);
                     }
 
-                    #[versioned("1.5")]
+                    #[versioned("1.5", "1.6")]
                     reader::XmlEvent::StartElement {
                         name, attributes, ..
                     } if name.local_name == SERVICES_TAG => {
@@ -194,7 +194,7 @@ pub(crate) mod base {
 
             match tools {
                 Some(tools) => {
-                    #[versioned("1.5")]
+                    #[versioned("1.5", "1.6")]
                     if components.is_some() || services.is_some() {
                         return Err(XmlReadError::RequiredDataMissing {
                             required_field: "tool array or services & components".to_string(),
@@ -206,7 +206,7 @@ pub(crate) mod base {
                 }
                 #[versioned("1.3", "1.4")]
                 None => Ok(Self::List(vec![])),
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 None => Ok(Self::Object {
                     services,
                     components,
@@ -226,7 +226,7 @@ pub(crate) mod base {
         version: Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")]
         hashes: Option<Hashes>,
-        #[versioned("1.4", "1.5")]
+        #[versioned("1.4", "1.5", "1.6")]
         #[serde(skip_serializing_if = "Option::is_none")]
         external_references: Option<ExternalReferences>,
     }
@@ -238,7 +238,7 @@ pub(crate) mod base {
                 name: other.name.map(|n| n.to_string()),
                 version: other.version.map(|v| v.to_string()),
                 hashes: convert_optional(other.hashes),
-                #[versioned("1.4", "1.5")]
+                #[versioned("1.4", "1.5", "1.6")]
                 external_references: convert_optional(other.external_references),
             }
         }
@@ -253,7 +253,7 @@ pub(crate) mod base {
                 hashes: convert_optional(other.hashes),
                 #[versioned("1.3")]
                 external_references: None,
-                #[versioned("1.4", "1.5")]
+                #[versioned("1.4", "1.5", "1.6")]
                 external_references: convert_optional(other.external_references),
             }
         }
@@ -291,7 +291,7 @@ pub(crate) mod base {
                 }
             }
 
-            #[versioned("1.4", "1.5")]
+            #[versioned("1.4", "1.5", "1.6")]
             if let Some(external_references) = &self.external_references {
                 external_references.write_xml_element(writer)?;
             }
@@ -312,7 +312,7 @@ pub(crate) mod base {
     }
 
     const HASHES_TAG: &str = "hashes";
-    #[versioned("1.4", "1.5")]
+    #[versioned("1.4", "1.5", "1.6")]
     const EXTERNAL_REFERENCES_TAG: &str = "externalReferences";
 
     impl FromXml for Tool {
@@ -328,7 +328,7 @@ pub(crate) mod base {
             let mut tool_name: Option<String> = None;
             let mut version: Option<String> = None;
             let mut hashes: Option<Hashes> = None;
-            #[versioned("1.4", "1.5")]
+            #[versioned("1.4", "1.5", "1.6")]
             let mut external_references: Option<ExternalReferences> = None;
 
             let mut got_end_tag = false;
@@ -353,7 +353,7 @@ pub(crate) mod base {
                     } if name.local_name == HASHES_TAG => {
                         hashes = Some(Hashes::read_xml_element(event_reader, &name, &attributes)?)
                     }
-                    #[versioned("1.4", "1.5")]
+                    #[versioned("1.4", "1.5", "1.6")]
                     reader::XmlEvent::StartElement {
                         name, attributes, ..
                     } if name.local_name == EXTERNAL_REFERENCES_TAG => {
@@ -379,7 +379,7 @@ pub(crate) mod base {
                 name: tool_name,
                 version,
                 hashes,
-                #[versioned("1.4", "1.5")]
+                #[versioned("1.4", "1.5", "1.6")]
                 external_references,
             })
         }
@@ -391,7 +391,7 @@ pub(crate) mod base {
         use crate::specs::common::external_reference::v1_4::test::{
             corresponding_external_references, example_external_references,
         };
-        #[versioned("1.5")]
+        #[versioned("1.5", "1.6")]
         use crate::specs::{
             common::{
                 external_reference::v1_5::test::{
@@ -443,7 +443,7 @@ pub(crate) mod base {
             }
         }
 
-        #[versioned("1.4", "1.5")]
+        #[versioned("1.4", "1.5", "1.6")]
         pub(crate) fn example_tool() -> Tool {
             Tool {
                 vendor: Some("vendor".to_string()),
@@ -454,7 +454,7 @@ pub(crate) mod base {
             }
         }
 
-        #[versioned("1.4", "1.5")]
+        #[versioned("1.4", "1.5", "1.6")]
         pub(crate) fn corresponding_tool() -> models::tool::Tool {
             models::tool::Tool {
                 vendor: Some(NormalizedString::new_unchecked("vendor".to_string())),
@@ -500,7 +500,7 @@ pub(crate) mod base {
         }
 
         #[test]
-        #[versioned("1.5")]
+        #[versioned("1.5", "1.6")]
         fn it_should_read_xml_with_services_and_components() {
             let input = r#"
 <tools>
