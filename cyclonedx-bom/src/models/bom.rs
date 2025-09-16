@@ -56,6 +56,9 @@ pub enum SpecVersion {
     #[strum(to_string = "1.5")]
     #[serde(rename = "1.5")]
     V1_5 = 3,
+    #[strum(to_string = "1.6")]
+    #[serde(rename = "1.6")]
+    V1_6 = 4,
 }
 
 impl Default for SpecVersion {
@@ -72,6 +75,7 @@ impl FromStr for SpecVersion {
             "1.3" => Ok(SpecVersion::V1_3),
             "1.4" => Ok(SpecVersion::V1_4),
             "1.5" => Ok(SpecVersion::V1_5),
+            "1.6" => Ok(SpecVersion::V1_6),
             s => Err(BomError::UnsupportedSpecVersion(s.to_string())),
         }
     }
@@ -158,6 +162,7 @@ impl Bom {
             SpecVersion::V1_3 => Self::parse_from_json_v1_3(reader),
             SpecVersion::V1_4 => Self::parse_from_json_v1_4(reader),
             SpecVersion::V1_5 => Self::parse_from_json_v1_5(reader),
+            SpecVersion::V1_6 => Self::parse_from_json_v1_6(reader),
         }
     }
 
@@ -171,6 +176,7 @@ impl Bom {
             SpecVersion::V1_3 => self.output_as_json_v1_3(writer),
             SpecVersion::V1_4 => self.output_as_json_v1_4(writer),
             SpecVersion::V1_5 => self.output_as_json_v1_5(writer),
+            SpecVersion::V1_6 => self.output_as_json_v1_6(writer),
         }
     }
 
@@ -183,6 +189,7 @@ impl Bom {
             SpecVersion::V1_3 => Self::parse_from_xml_v1_3(reader),
             SpecVersion::V1_4 => Self::parse_from_xml_v1_4(reader),
             SpecVersion::V1_5 => Self::parse_from_xml_v1_5(reader),
+            SpecVersion::V1_6 => Self::parse_from_xml_v1_6(reader),
         }
     }
 
@@ -196,6 +203,7 @@ impl Bom {
             SpecVersion::V1_3 => self.output_as_xml_v1_3(writer),
             SpecVersion::V1_4 => self.output_as_xml_v1_4(writer),
             SpecVersion::V1_5 => self.output_as_xml_v1_5(writer),
+            SpecVersion::V1_6 => self.output_as_xml_v1_6(writer),
         }
     }
 
@@ -330,6 +338,46 @@ impl Bom {
         let mut event_writer = EventWriter::new_with_config(writer, config);
 
         let bom: crate::specs::v1_5::bom::Bom = self.try_into()?;
+        bom.write_xml_element(&mut event_writer)
+    }
+
+    /// Parse the input as a JSON document conforming to [version 1.6 of the specification](https://cyclonedx.org/docs/1.6/json/)
+    pub fn parse_from_json_v1_6<R: std::io::Read>(
+        mut reader: R,
+    ) -> Result<Self, crate::errors::JsonReadError> {
+        let bom: crate::specs::v1_6::bom::Bom = serde_json::from_reader(&mut reader)?;
+        Ok(bom.into())
+    }
+
+    /// Parse the input as an XML document conforming to [version 1.6 of the specification](https://cyclonedx.org/docs/1.6/xml/)
+    pub fn parse_from_xml_v1_6<R: std::io::Read>(
+        reader: R,
+    ) -> Result<Self, crate::errors::XmlReadError> {
+        let config = ParserConfig::default().trim_whitespace(true);
+        let mut event_reader = EventReader::new_with_config(reader, config);
+        let bom = crate::specs::v1_6::bom::Bom::read_xml_document(&mut event_reader)?;
+        Ok(bom.into())
+    }
+
+    /// Output as a JSON document conforming to [version 1.6 of the specification](https://cyclonedx.org/docs/1.6/json/)
+    pub fn output_as_json_v1_6<W: std::io::Write>(
+        self,
+        writer: &mut W,
+    ) -> Result<(), crate::errors::JsonWriteError> {
+        let bom: crate::specs::v1_6::bom::Bom = self.try_into()?;
+        serde_json::to_writer_pretty(writer, &bom)?;
+        Ok(())
+    }
+
+    /// Output as an XML document conforming to [version 1.6 of the specification](https://cyclonedx.org/docs/1.6/xml/)
+    pub fn output_as_xml_v1_6<W: std::io::Write>(
+        self,
+        writer: &mut W,
+    ) -> Result<(), crate::errors::XmlWriteError> {
+        let config = EmitterConfig::default().perform_indent(true);
+        let mut event_writer = EventWriter::new_with_config(writer, config);
+
+        let bom: crate::specs::v1_6::bom::Bom = self.try_into()?;
         bom.write_xml_element(&mut event_writer)
     }
 }
