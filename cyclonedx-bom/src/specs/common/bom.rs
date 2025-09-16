@@ -17,7 +17,7 @@
  */
 use cyclonedx_bom_macros::versioned;
 
-#[versioned("1.3", "1.4", "1.5")]
+#[versioned("1.3", "1.4", "1.5", "1.6")]
 pub(crate) mod base {
     #[versioned("1.3")]
     use crate::specs::v1_3::{
@@ -57,6 +57,20 @@ pub(crate) mod base {
         utilities::convert_optional_vec,
         xml::write_list_tag,
     };
+    #[versioned("1.6")]
+    use crate::{
+        specs::{
+            common::property::Properties,
+            common::signature::Signature,
+            v1_6::{
+                annotation::Annotations, component::Components, composition::Compositions,
+                external_reference::ExternalReferences, formulation::Formula, metadata::Metadata,
+                service::Services, vulnerability::Vulnerabilities,
+            },
+        },
+        utilities::convert_optional_vec,
+        xml::write_list_tag,
+    };
 
     use crate::{specs::common::dependency::Dependencies, xml::ToXml};
     use serde::{Deserialize, Serialize};
@@ -68,6 +82,8 @@ pub(crate) mod base {
     const SPEC_VERSION: SpecVersion = SpecVersion::V1_4;
     #[versioned("1.5")]
     const SPEC_VERSION: SpecVersion = SpecVersion::V1_5;
+    #[versioned("1.6")]
+    const SPEC_VERSION: SpecVersion = SpecVersion::V1_6;
 
     #[versioned("1.3")]
     const NS: &str = "http://cyclonedx.org/schema/bom/1.3";
@@ -75,6 +91,8 @@ pub(crate) mod base {
     const NS: &str = "http://cyclonedx.org/schema/bom/1.4";
     #[versioned("1.5")]
     const NS: &str = "http://cyclonedx.org/schema/bom/1.5";
+    #[versioned("1.6")]
+    const NS: &str = "http://cyclonedx.org/schema/bom/1.6";
 
     #[derive(Debug, Deserialize, Serialize, PartialEq)]
     #[serde(rename_all = "camelCase")]
@@ -95,19 +113,19 @@ pub(crate) mod base {
         dependencies: Option<Dependencies>,
         #[serde(skip_serializing_if = "Option::is_none")]
         compositions: Option<Compositions>,
-        #[versioned("1.4", "1.5")]
+        #[versioned("1.4", "1.5", "1.6")]
         #[serde(skip_serializing_if = "Option::is_none")]
         vulnerabilities: Option<Vulnerabilities>,
-        #[versioned("1.4", "1.5")]
+        #[versioned("1.4", "1.5", "1.6")]
         #[serde(skip_serializing_if = "Option::is_none")]
         signature: Option<Signature>,
-        #[versioned("1.5")]
+        #[versioned("1.5", "1.6")]
         #[serde(skip_serializing_if = "Option::is_none")]
         annotations: Option<Annotations>,
-        #[versioned("1.5")]
+        #[versioned("1.5", "1.6")]
         #[serde(skip_serializing_if = "Option::is_none")]
         properties: Option<Properties>,
-        #[versioned("1.5")]
+        #[versioned("1.5", "1.6")]
         #[serde(skip_serializing_if = "Option::is_none")]
         formulation: Option<Vec<Formula>>,
     }
@@ -127,15 +145,15 @@ pub(crate) mod base {
                 external_references: try_convert_optional(other.external_references)?,
                 dependencies: convert_optional(other.dependencies),
                 compositions: convert_optional(other.compositions),
-                #[versioned("1.4", "1.5")]
+                #[versioned("1.4", "1.5", "1.6")]
                 vulnerabilities: try_convert_optional(other.vulnerabilities)?,
-                #[versioned("1.4", "1.5")]
+                #[versioned("1.4", "1.5", "1.6")]
                 signature: convert_optional(other.signature),
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 annotations: try_convert_optional(other.annotations)?,
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 properties: convert_optional(other.properties),
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 formulation: other
                     .formulation
                     .map(|formulation| {
@@ -162,23 +180,23 @@ pub(crate) mod base {
                 compositions: convert_optional(other.compositions),
                 #[versioned("1.3")]
                 vulnerabilities: None,
-                #[versioned("1.4", "1.5")]
+                #[versioned("1.4", "1.5", "1.6")]
                 vulnerabilities: convert_optional(other.vulnerabilities),
                 #[versioned("1.3")]
                 signature: None,
-                #[versioned("1.4", "1.5")]
+                #[versioned("1.4", "1.5", "1.6")]
                 signature: convert_optional(other.signature),
                 #[versioned("1.3", "1.4")]
                 annotations: None,
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 annotations: convert_optional(other.annotations),
                 #[versioned("1.3", "1.4")]
                 properties: None,
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 properties: convert_optional(other.properties),
                 #[versioned("1.3", "1.4")]
                 formulation: None,
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 formulation: convert_optional_vec(other.formulation),
                 spec_version: other.spec_version,
             }
@@ -231,17 +249,17 @@ pub(crate) mod base {
                 compositions.write_xml_element(writer)?;
             }
 
-            #[versioned("1.5")]
+            #[versioned("1.5", "1.6")]
             if let Some(properties) = &self.properties {
                 properties.write_xml_element(writer)?;
             }
 
-            #[versioned("1.4", "1.5")]
+            #[versioned("1.4", "1.5", "1.6")]
             if let Some(vulnerabilities) = &self.vulnerabilities {
                 vulnerabilities.write_xml_element(writer)?;
             }
 
-            #[versioned("1.5")]
+            #[versioned("1.5", "1.6")]
             if let Some(formulation) = &self.formulation {
                 write_list_tag(writer, FORMULATION_TAG, formulation)?;
             }
@@ -260,17 +278,17 @@ pub(crate) mod base {
     const EXTERNAL_REFERENCES_TAG: &str = "externalReferences";
     const DEPENDENCIES_TAG: &str = "dependencies";
     const COMPOSITIONS_TAG: &str = "compositions";
-    #[versioned("1.4", "1.5")]
+    #[versioned("1.4", "1.5", "1.6")]
     const VULNERABILITIES_TAG: &str = "vulnerabilities";
-    #[versioned("1.4", "1.5")]
+    #[versioned("1.4", "1.5", "1.6")]
     const SIGNATURE_TAG: &str = "signature";
-    #[versioned("1.5")]
+    #[versioned("1.5", "1.6")]
     const ANNOTATIONS_TAG: &str = "annotations";
-    #[versioned("1.5")]
+    #[versioned("1.5", "1.6")]
     const PROPERTIES_TAG: &str = "properties";
-    #[versioned("1.5")]
+    #[versioned("1.5", "1.6")]
     const FORMULATION_TAG: &str = "formulation";
-    #[versioned("1.5")]
+    #[versioned("1.5", "1.6")]
     const FORMULA_TAG: &str = "formula";
 
     impl FromXmlDocument for Bom {
@@ -301,7 +319,7 @@ pub(crate) mod base {
                         expected_namespace_or_error("1.3", &namespace)?;
                         #[versioned("1.4")]
                         expected_namespace_or_error("1.4", &namespace)?;
-                        #[versioned("1.5")]
+                        #[versioned("1.5", "1.6")]
                         expected_namespace_or_error("1.5", &namespace)?;
                         let version =
                             if let Some(version) = optional_attribute(&attributes, VERSION_ATTR) {
@@ -322,15 +340,15 @@ pub(crate) mod base {
             let mut external_references: Option<ExternalReferences> = None;
             let mut dependencies: Option<Dependencies> = None;
             let mut compositions: Option<Compositions> = None;
-            #[versioned("1.4", "1.5")]
+            #[versioned("1.4", "1.5", "1.6")]
             let mut vulnerabilities: Option<Vulnerabilities> = None;
-            #[versioned("1.4", "1.5")]
+            #[versioned("1.4", "1.5", "1.6")]
             let mut signature: Option<Signature> = None;
-            #[versioned("1.5")]
+            #[versioned("1.5", "1.6")]
             let mut annotations: Option<Annotations> = None;
-            #[versioned("1.5")]
+            #[versioned("1.5", "1.6")]
             let mut properties: Option<Properties> = None;
-            #[versioned("1.5")]
+            #[versioned("1.5", "1.6")]
             let mut formulation: Option<Vec<Formula>> = None;
 
             let mut got_end_tag = false;
@@ -391,7 +409,7 @@ pub(crate) mod base {
                             &attributes,
                         )?)
                     }
-                    #[versioned("1.4", "1.5")]
+                    #[versioned("1.4", "1.5", "1.6")]
                     reader::XmlEvent::StartElement {
                         name, attributes, ..
                     } if name.local_name == VULNERABILITIES_TAG => {
@@ -401,7 +419,7 @@ pub(crate) mod base {
                             &attributes,
                         )?)
                     }
-                    #[versioned("1.4", "1.5")]
+                    #[versioned("1.4", "1.5", "1.6")]
                     reader::XmlEvent::StartElement {
                         name, attributes, ..
                     } if name.local_name == SIGNATURE_TAG => {
@@ -411,7 +429,7 @@ pub(crate) mod base {
                             &attributes,
                         )?)
                     }
-                    #[versioned("1.5")]
+                    #[versioned("1.5", "1.6")]
                     reader::XmlEvent::StartElement {
                         name, attributes, ..
                     } if name.local_name == ANNOTATIONS_TAG => {
@@ -421,7 +439,7 @@ pub(crate) mod base {
                             &attributes,
                         )?)
                     }
-                    #[versioned("1.5")]
+                    #[versioned("1.5", "1.6")]
                     reader::XmlEvent::StartElement {
                         name, attributes, ..
                     } if name.local_name == PROPERTIES_TAG => {
@@ -431,7 +449,7 @@ pub(crate) mod base {
                             &attributes,
                         )?)
                     }
-                    #[versioned("1.5")]
+                    #[versioned("1.5", "1.6")]
                     reader::XmlEvent::StartElement { name, .. }
                         if name.local_name == FORMULATION_TAG =>
                     {
@@ -469,15 +487,15 @@ pub(crate) mod base {
                 external_references,
                 dependencies,
                 compositions,
-                #[versioned("1.4", "1.5")]
+                #[versioned("1.4", "1.5", "1.6")]
                 vulnerabilities,
-                #[versioned("1.4", "1.5")]
+                #[versioned("1.4", "1.5", "1.6")]
                 signature,
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 annotations,
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 properties,
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 formulation,
             })
         }
@@ -515,7 +533,7 @@ pub(crate) mod base {
             metadata::test::{corresponding_metadata, example_metadata},
             service::test::{corresponding_services, example_services},
         };
-        #[versioned("1.5")]
+        #[versioned("1.5", "1.6")]
         use crate::specs::{
             common::property::test::{corresponding_properties, example_properties},
             common::signature::test::{corresponding_signature, example_signature},
@@ -566,15 +584,15 @@ pub(crate) mod base {
                 external_references: None,
                 dependencies: None,
                 compositions: None,
-                #[versioned("1.4", "1.5")]
+                #[versioned("1.4", "1.5", "1.6")]
                 vulnerabilities: None,
-                #[versioned("1.4", "1.5")]
+                #[versioned("1.4", "1.5", "1.6")]
                 signature: None,
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 annotations: None,
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 properties: None,
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 formulation: None,
             }
         }
@@ -591,15 +609,15 @@ pub(crate) mod base {
                 external_references: Some(example_external_references()),
                 dependencies: Some(example_dependencies()),
                 compositions: Some(example_compositions()),
-                #[versioned("1.4", "1.5")]
+                #[versioned("1.4", "1.5", "1.6")]
                 vulnerabilities: Some(example_vulnerabilities()),
-                #[versioned("1.4", "1.5")]
+                #[versioned("1.4", "1.5", "1.6")]
                 signature: Some(example_signature()),
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 annotations: Some(example_annotations()),
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 properties: Some(example_properties()),
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 formulation: Some(vec![example_formula()]),
             }
         }
@@ -617,23 +635,23 @@ pub(crate) mod base {
                 compositions: Some(corresponding_compositions()),
                 #[versioned("1.3")]
                 vulnerabilities: None,
-                #[versioned("1.4", "1.5")]
+                #[versioned("1.4", "1.5", "1.6")]
                 vulnerabilities: Some(corresponding_vulnerabilities()),
                 #[versioned("1.3")]
                 signature: None,
-                #[versioned("1.4", "1.5")]
+                #[versioned("1.4", "1.5", "1.6")]
                 signature: Some(corresponding_signature()),
                 #[versioned("1.3", "1.4")]
                 annotations: None,
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 annotations: Some(corresponding_annotations()),
                 #[versioned("1.3", "1.4")]
                 properties: None,
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 properties: Some(corresponding_properties()),
                 #[versioned("1.3", "1.4")]
                 formulation: None,
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 formulation: Some(vec![corresponding_formula()]),
             }
         }
@@ -1473,7 +1491,7 @@ pub(crate) mod base {
   </example:laxValidation>
 </bom>
 "#.trim_start();
-            #[versioned("1.5")]
+            #[versioned("1.5", "1.6")]
             let input = r#"
 <?xml version="1.0" encoding="utf-8"?>
 <bom xmlns="http://cyclonedx.org/schema/bom/1.5" xmlns:example="https://example.com" serialNumber="fake-uuid" version="1">
