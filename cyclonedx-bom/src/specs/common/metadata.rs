@@ -18,13 +18,13 @@
 
 use cyclonedx_bom_macros::versioned;
 
-#[versioned("1.3", "1.4", "1.5")]
+#[versioned("1.3", "1.4", "1.5", "1.6")]
 pub(crate) mod base {
     #[versioned("1.3")]
     use crate::specs::v1_3::{component::Component, license::Licenses, tool::Tools};
     #[versioned("1.4")]
     use crate::specs::v1_4::{component::Component, license::Licenses, tool::Tools};
-    #[versioned("1.5")]
+    #[versioned("1.5", "1.6")]
     use crate::specs::v1_5::{
         component::Component, license::Licenses, lifecycles::Lifecycles, tool::Tools,
     };
@@ -68,7 +68,7 @@ pub(crate) mod base {
         #[serde(skip_serializing_if = "Option::is_none")]
         properties: Option<Properties>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        #[versioned("1.5")]
+        #[versioned("1.5", "1.6")]
         lifecycles: Option<Lifecycles>,
     }
 
@@ -85,7 +85,7 @@ pub(crate) mod base {
                 supplier: convert_optional(other.supplier),
                 licenses: convert_optional(other.licenses),
                 properties: convert_optional(other.properties),
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 lifecycles: convert_optional(other.lifecycles),
             })
         }
@@ -104,7 +104,7 @@ pub(crate) mod base {
                 properties: convert_optional(other.properties),
                 #[versioned("1.3", "1.4")]
                 lifecycles: None,
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 lifecycles: convert_optional(other.lifecycles),
             }
         }
@@ -164,7 +164,7 @@ pub(crate) mod base {
                 properties.write_xml_element(writer)?;
             }
 
-            #[versioned("1.5")]
+            #[versioned("1.5", "1.6")]
             if let Some(lifecycles) = &self.lifecycles {
                 lifecycles.write_xml_element(writer)?;
             }
@@ -190,7 +190,7 @@ pub(crate) mod base {
     const COMPONENT_TAG: &str = "component";
     const LICENSES_TAG: &str = "licenses";
     const PROPERTIES_TAG: &str = "properties";
-    #[versioned("1.5")]
+    #[versioned("1.5", "1.6")]
     const LIFECYCLES_TAG: &str = "lifecycles";
 
     impl FromXml for Metadata {
@@ -210,7 +210,7 @@ pub(crate) mod base {
             let mut supplier: Option<OrganizationalEntity> = None;
             let mut licenses: Option<Licenses> = None;
             let mut properties: Option<Properties> = None;
-            #[versioned("1.5")]
+            #[versioned("1.5", "1.6")]
             let mut lifecycles: Option<Lifecycles> = None;
 
             let mut got_end_tag = false;
@@ -279,7 +279,7 @@ pub(crate) mod base {
                             &attributes,
                         )?)
                     }
-                    #[versioned("1.5")]
+                    #[versioned("1.5", "1.6")]
                     reader::XmlEvent::StartElement {
                         name, attributes, ..
                     } if name.local_name == LIFECYCLES_TAG => {
@@ -309,7 +309,7 @@ pub(crate) mod base {
                 supplier,
                 licenses,
                 properties,
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 lifecycles,
             })
         }
@@ -332,7 +332,7 @@ pub(crate) mod base {
             license::test::{corresponding_licenses, example_licenses},
             tool::test::{corresponding_tools, example_tools},
         };
-        #[versioned("1.5")]
+        #[versioned("1.5", "1.6")]
         use crate::specs::v1_5::{
             component::test::{corresponding_component, example_component},
             license::test::{corresponding_licenses, example_licenses},
@@ -359,7 +359,7 @@ pub(crate) mod base {
                 supplier: Some(example_entity()),
                 licenses: Some(example_licenses()),
                 properties: Some(example_properties()),
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 lifecycles: Some(example_lifecycles()),
             }
         }
@@ -376,7 +376,7 @@ pub(crate) mod base {
                 properties: Some(corresponding_properties()),
                 #[versioned("1.3", "1.4")]
                 lifecycles: None,
-                #[versioned("1.5")]
+                #[versioned("1.5", "1.6")]
                 lifecycles: Some(corresponding_lifecycles()),
             }
         }
@@ -692,7 +692,7 @@ pub(crate) mod base {
   </properties>
 </metadata>
 "#;
-            #[versioned("1.5")]
+            #[versioned("1.5", "1.6")]
             let input = r#"
 <metadata>
   <timestamp>timestamp</timestamp>
